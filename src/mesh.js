@@ -9,6 +9,7 @@ import messageData from './mocks/messageData.js';
 import { createFlame, stopFlame } from './model/flame.js';
 import TruckAnimation from './model/truckAnimation.js';
 import fvpAnimation from './model/fvp.js';
+import { RESOURCES } from './config/resources.js';
 
 const group = new THREE.Group();
 
@@ -29,10 +30,11 @@ let idArr = [
 ];
 // 获取标签
 const messageTag = getTag('messageTag');
-
-loader.load('./model.glb', gltf => {
+// http://static.lyoko.cc/model.glb
+// 使用配置中的CDN资源
+loader.load(RESOURCES.models.main, gltf => {
   // 先加载您的地面纹理
-  const groundTexture = textureLoader.load('./wispy-grass-meadow_albedo.png');
+  const groundTexture = textureLoader.load(RESOURCES.textures.ground);
   groundTexture.wrapS = THREE.MirroredRepeatWrapping;
   groundTexture.wrapT = THREE.MirroredRepeatWrapping;
   groundTexture.repeat.set(4, 4);

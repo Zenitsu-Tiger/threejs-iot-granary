@@ -5,6 +5,7 @@ import { labelRenderer } from './utils/tag.js';
 import mesh from './mesh.js';
 import { initComposer, composer, fxaaPass } from './utils/choose.js';
 import { resourceManager } from './utils/resourceManager.js';
+import { RESOURCES } from './config/resources.js';
 
 // 全局变量
 let camera = null;
@@ -38,7 +39,7 @@ function initScene() {
   scene.fog = fog;
 
   // 设置HDR环境
-  const hdrTexture = resourceManager.get('./qwantani_moonrise_puresky_2k.hdr');
+  const hdrTexture = resourceManager.get(RESOURCES.hdri.sky);
   if (hdrTexture) {
     hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
     scene.background = hdrTexture;

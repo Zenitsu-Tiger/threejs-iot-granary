@@ -13,6 +13,37 @@ export default defineConfig({
       usePolling: true,
       interval: 2000,
     },
+    // 🔥 关键：添加代理配置
+    proxy: {
+      '/api/static': {
+        target: 'http://static.lyoko.cc',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api\/static/, ''),
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('🚨 代理错误:', err.message);
+            // 如果CDN失败，尝试HTTPS
+            if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+              console.log('🔄 尝试HTTPS连接...');
+            }
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            // 强制添加CORS头，确保浏览器能正常使用
+            proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+            proxyRes.headers['Access-Control-Allow-Methods'] =
+              'GET, POST, OPTIONS, HEAD';
+            proxyRes.headers['Access-Control-Allow-Headers'] =
+              'Origin, X-Requested-With, Content-Type, Accept';
+            console.log(`✅ 代理成功: ${req.url} -> ${proxyRes.statusCode}`);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            // 添加Referer头，模拟从lyoko.cc访问
+            proxyReq.setHeader('Referer', 'https://www.lyoko.cc/');
+            console.log(`🔄 代理请求: ${req.url}`);
+          });
+        },
+      },
+    },
   },
 
   // 确保正确处理静态资源
@@ -20,15 +51,11 @@ export default defineConfig({
 
   // 构建优化配置
   build: {
-    // 确保资源文件被正确处理
     assetsDir: 'assets',
-    // 增加chunk大小限制
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
-        // 代码分割策略
         manualChunks: {
-          // 将Three.js相关库分离为单独chunk
           'three-core': ['three'],
           'three-addons': [
             'three/addons/controls/OrbitControls.js',
@@ -44,12 +71,7 @@ export default defineConfig({
             'three/examples/jsm/postprocessing/ShaderPass.js',
           ],
         },
-        // 自定义资源文件命名
         assetFileNames: assetInfo => {
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
-
-          // 根据文件大小采用不同策略
           if (/\.(png|jpe?g|gif|svg|webp)$/.test(assetInfo.name)) {
             return `images/[name]-[hash][extname]`;
           }
@@ -60,14 +82,7 @@ export default defineConfig({
         },
       },
     },
-    // 启用压缩
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
+    minify: 'esbuild', // 改为esbuild避免terser问题
   },
 
   optimizeDeps: {

@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
+import { RESOURCES } from '../config/resources.js';
 function fvpAnimation(scene) {
   const loader = new GLTFLoader();
   const R = 150;
   const H = 60;
 
   loader.load(
-    './dji_fvp.glb',
+    RESOURCES.models.drone,
     gltf => {
       const plane = new THREE.Group();
       const fvp = gltf.scene.clone();

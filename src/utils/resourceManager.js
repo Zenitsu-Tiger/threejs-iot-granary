@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { RESOURCES } from '../config/resources.js';
 
 class SimpleResourceManager {
   constructor() {
@@ -150,16 +151,16 @@ class SimpleResourceManager {
     });
   }
 
-  // 一次性加载所有必需资源
+  // 一次性加载所有必需资源 - 使用CDN配置
   async loadAllResources() {
     const resources = [
-      './model.glb',
-      './qwantani_moonrise_puresky_2k.hdr',
-      './wispy-grass-meadow_albedo.png',
-      './truck.glb',
-      './tesla_model_x.glb',
-      './aston_martin_v8_vantage_v600.glb',
-      './dji_fvp.glb',
+      RESOURCES.models.main,
+      RESOURCES.hdri.sky,
+      RESOURCES.textures.ground,
+      RESOURCES.models.truck,
+      RESOURCES.models.tesla,
+      RESOURCES.models.aston,
+      RESOURCES.models.drone,
     ];
 
     this.totalFiles = resources.length;
@@ -182,8 +183,47 @@ class SimpleResourceManager {
     console.log('🎉 所有资源加载完成！');
   }
 
-  // 获取资源
-  get(url) {
+  // 获取资源 - 支持通过key或URL获取
+  get(keyOrUrl) {
+    // 如果是直接的URL，从缓存中获取
+    if (this.cache.has(keyOrUrl)) {
+      return this.cache.get(keyOrUrl);
+    }
+
+    // 如果是资源key，转换为URL后获取
+    const url = this.getResourceUrl(keyOrUrl);
+    return this.cache.get(url);
+  }
+
+  // 根据key获取资源URL
+  getResourceUrl(key) {
+    // 支持点分割的key，如 'models.main'
+    const keys = key.split('.');
+    let resource = RESOURCES;
+
+    for (const k of keys) {
+      resource = resource[k];
+      if (!resource) return null;
+    }
+
+    return resource;
+  }
+
+  // 便捷方法：获取模型
+  getModel(key) {
+    const url = RESOURCES.models[key];
+    return this.cache.get(url);
+  }
+
+  // 便捷方法：获取纹理
+  getTexture(key) {
+    const url = RESOURCES.textures[key];
+    return this.cache.get(url);
+  }
+
+  // 便捷方法：获取HDR
+  getHDR(key) {
+    const url = RESOURCES.hdri[key];
     return this.cache.get(url);
   }
 }

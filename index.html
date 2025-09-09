@@ -331,7 +331,7 @@
     >
       <div style="position: relative">
         <div style="position: absolute; left: 0px; top: 0px">
-          <img src="./信息背景.png" alt="" style="width: 300px; opacity: 1" />
+          <img id="infoBgImg" src="" alt="" style="width: 300px; opacity: 1" />
         </div>
         <div
           id="granaryName"
@@ -340,7 +340,7 @@
           平房仓 P_01
         </div>
         <div style="position: absolute; left: 218px; top: 18px">
-          <img src="./温度.png" alt="" style="width: 38px" />
+          <img id="temperatureImg" src="" alt="" style="width: 38px" />
         </div>
         <div
           id="temperature"
@@ -364,7 +364,7 @@
             vertical-align: middle;
           "
         >
-          <img id="grainImg" src="./豆子/红豆.png" alt="" style="width: 45px" />
+          <img id="grainImg" src="" alt="" style="width: 45px" />
         </div>
         <div
           id="weight"
@@ -471,6 +471,27 @@
       // 暴露给模块使用
       window.updateProgress = updateProgress;
       window.hideLoading = hideLoading;
+    </script>
+    <script>
+      // 等待模块加载完成后设置图片路径
+      window.addEventListener('DOMContentLoaded', () => {
+        // 延迟执行，确保模块已加载
+        setTimeout(() => {
+          // 这些路径会在开发环境自动使用代理
+          const isDev =
+            window.location.hostname === '192.168.31.80' ||
+            window.location.hostname === 'localhost';
+          const baseUrl = isDev ? '/api/static' : 'http://static.lyoko.cc';
+
+          document.getElementById(
+            'infoBgImg'
+          ).src = `${baseUrl}/farm-pic/信息背景.png`;
+          document.getElementById(
+            'temperatureImg'
+          ).src = `${baseUrl}/farm-pic/温度.png`;
+          document.getElementById('grainImg').src = `${baseUrl}/beans/红豆.png`;
+        }, 100);
+      });
     </script>
   </body>
 </html>

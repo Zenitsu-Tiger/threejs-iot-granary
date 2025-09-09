@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { RESOURCES } from '../config/resources.js';
+
 const textureLoader = new THREE.TextureLoader();
 let stopAnimationFrame;
 
@@ -11,10 +13,12 @@ function createFlame() {
   const fireGeometry = new THREE.PlaneGeometry(w, h);
   fireGeometry.translate(0, h / 2, 0);
 
-  // 加载火焰效果
+  // 使用CDN火焰纹理
   const fireTexture = textureLoader.load(
-    './火焰.png',
-    texture => {},
+    RESOURCES.textures.flame,
+    texture => {
+      console.log('火焰贴图加载成功');
+    },
     undefined,
     error => {
       console.error('火焰贴图加载失败:', error);

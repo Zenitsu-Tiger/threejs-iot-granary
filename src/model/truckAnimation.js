@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
+import { RESOURCES } from '../config/resources.js';
 class TruckAnimation {
   constructor(scene, roadPosition, roadModel = null) {
     this.scene = scene;
@@ -85,7 +85,7 @@ class TruckAnimation {
   loadTruck() {
     const vehicles = [
       {
-        modelPath: './truck.glb',
+        modelPath: RESOURCES.models.truck,
         direction: 'forward',
         laneOffset: 7,
         scale: 3,
@@ -94,7 +94,7 @@ class TruckAnimation {
         yOffset: 7, // 卡车的 y 轴向上偏移
       },
       {
-        modelPath: './aston_martin_v8_vantage_v600.glb',
+        modelPath: RESOURCES.models.aston,
         direction: 'backward',
         laneOffset: -7,
         scale: 4,
@@ -103,7 +103,7 @@ class TruckAnimation {
         yOffset: 0.5, // 阿斯顿马丁的 y 轴偏移
       },
       {
-        modelPath: './tesla_model_x.glb',
+        modelPath: RESOURCES.models.tesla,
         direction: 'forward',
         laneOffset: 11,
         scale: 0.004,
