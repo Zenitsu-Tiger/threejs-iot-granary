@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   // 设置基础路径 - 根据你的部署环境调整
-  base: process.env.VITE_BASE_URL || './',
+  base: process.env.NODE_ENV === 'production' ? '/farm-iot/' : './',
 
   server: {
     host: '0.0.0.0',
@@ -16,7 +16,7 @@ export default defineConfig({
     // 🔥 关键：添加代理配置
     proxy: {
       '/api/static': {
-        target: 'http://static.lyoko.cc',
+        target: 'https://static.lyoko.cc',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api\/static/, ''),
         configure: (proxy, options) => {

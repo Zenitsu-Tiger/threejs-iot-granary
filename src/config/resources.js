@@ -7,7 +7,7 @@ console.log('🔧 使用代理:', import.meta.env.VITE_USE_PROXY);
 const useProxy =
   import.meta.env.DEV && import.meta.env.VITE_USE_PROXY === 'true';
 const cdnBaseUrl =
-  import.meta.env.VITE_CDN_BASE_URL || 'http://static.lyoko.cc';
+  import.meta.env.VITE_CDN_BASE_URL || 'https://static.lyoko.cc';
 const proxyPrefix = import.meta.env.VITE_PROXY_PREFIX || '/api/static';
 
 // 资源URL生成函数

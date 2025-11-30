@@ -6,11 +6,13 @@ import mesh from './mesh.js';
 import { initComposer, composer, fxaaPass } from './utils/choose.js';
 import { resourceManager } from './utils/resourceManager.js';
 import { RESOURCES } from './config/resources.js';
-
+import Stats from 'three/addons/libs/stats.module.js';
 // 全局变量
 let camera = null;
 let renderer = null;
 let scene = null;
+
+const stats = new Stats();
 
 // 简单的进度更新
 function updateProgress(progress) {
@@ -29,6 +31,7 @@ function updateProgress(progress) {
 // 初始化场景
 function initScene() {
   console.log('🎬 初始化场景...');
+  labelRenderer.setSize(window.innerWidth, window.innerHeight);
 
   // 创建场景
   scene = new THREE.Scene();
@@ -66,6 +69,19 @@ function initScene() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   document.body.appendChild(renderer.domElement);
 
+  // 添加Stats并设置样式
+  document.body.appendChild(stats.dom);
+
+  // 设置Stats样式 - 移动到右上角
+  stats.dom.style.cssText = `
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    opacity: 0.9;
+    cursor: pointer;
+  `;
+
   // 初始化后处理
   initComposer(renderer, scene);
 
@@ -83,6 +99,9 @@ function initScene() {
 
   // 渲染循环
   function render() {
+    // 开始统计
+    stats.begin();
+
     controls.update();
 
     if (window.truckAnimation) {
@@ -96,6 +115,10 @@ function initScene() {
     }
 
     labelRenderer.render(scene, camera);
+
+    // 结束统计
+    stats.end();
+
     requestAnimationFrame(render);
   }
 

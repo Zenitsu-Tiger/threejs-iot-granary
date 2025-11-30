@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RESOURCES } from '../config/resources.js';
+import { resourceManager } from '../utils/resourceManager.js';
+
 class TruckAnimation {
   constructor(scene, roadPosition, roadModel = null) {
     this.scene = scene;
@@ -85,7 +86,7 @@ class TruckAnimation {
   loadTruck() {
     const vehicles = [
       {
-        modelPath: RESOURCES.models.truck,
+        modelKey: 'truck',
         direction: 'forward',
         laneOffset: 7,
         scale: 3,
@@ -94,7 +95,7 @@ class TruckAnimation {
         yOffset: 7, // 卡车的 y 轴向上偏移
       },
       {
-        modelPath: RESOURCES.models.aston,
+        modelKey: 'aston',
         direction: 'backward',
         laneOffset: -7,
         scale: 4,
@@ -103,12 +104,12 @@ class TruckAnimation {
         yOffset: 0.5, // 阿斯顿马丁的 y 轴偏移
       },
       {
-        modelPath: RESOURCES.models.tesla,
+        modelKey: 'tesla',
         direction: 'forward',
         laneOffset: 11,
         scale: 0.004,
-        speed: 1.2,
-        delay: 3000,
+        speed: 1,
+        delay: 6000,
         rotationY: -Math.PI * 2,
         yOffset: 0, // Tesla 的 y 轴偏移
       },
@@ -117,21 +118,32 @@ class TruckAnimation {
     this.vehicles = [];
     this.mixers = [];
 
-    // 直接加载车辆
-    this.loadVehicles(vehicles);
+    // 同步使用已缓存的模型
+    this.loadVehiclesFromCache(vehicles);
   }
 
-  loadVehicles(vehicles) {
-    const loader = new GLTFLoader();
-    let loadedCount = 0;
+  // 新方法：从缓存加载车辆
+  loadVehiclesFromCache(vehicles) {
+    const loadedVehicles = [];
 
     vehicles.forEach((config, index) => {
-      loader.load(config.modelPath, gltf => {
-        this.createVehicle(gltf, config, index);
+      // 构建资源URL
+      const resourceUrl = RESOURCES.models[config.modelKey];
+      const gltf = resourceManager.get(resourceUrl);
 
-        loadedCount++;
-      });
+      if (gltf) {
+        const vehicleData = this.createVehicle(gltf, config, index);
+        loadedVehicles.push(vehicleData);
+        console.log(`✅ 车辆已加载: ${config.modelKey}`);
+      } else {
+        console.warn(`⚠️ 车辆模型未找到: ${config.modelKey}`);
+      }
     });
+
+    // 所有车辆同步创建完成后，按延迟启动动画
+    if (loadedVehicles.length > 0) {
+      this.startAllVehicleAnimations(loadedVehicles);
+    }
   }
 
   createVehicle(gltf, config, index) {
@@ -145,14 +157,11 @@ class TruckAnimation {
     // 设置初始位置
     vehicle.position.set(path.start.x, vehicleY, path.start.z);
 
-    // 修改这部分：先设置朝向，再应用额外的旋转
+    // 设置朝向和旋转
     if (config.rotationY !== undefined) {
-      // 首先让车辆朝向目标点
       vehicle.lookAt(path.end.x, vehicleY, path.end.z);
-      // 然后在Y轴上添加额外的旋转
       vehicle.rotation.y += config.rotationY;
     } else {
-      // 只设置朝向
       vehicle.lookAt(path.end.x, vehicleY, path.end.z);
     }
 
@@ -168,14 +177,21 @@ class TruckAnimation {
 
     this.vehicles.push(vehicleData);
 
-    // 直接开始动画（带延迟）
-    if (config.delay > 0) {
-      setTimeout(() => {
+    // 返回车辆数据，不立即开始动画
+    return vehicleData;
+  }
+
+  startAllVehicleAnimations(loadedVehicles) {
+    // 按照预定的延迟时间启动动画
+    loadedVehicles.forEach(vehicleData => {
+      if (vehicleData.config.delay > 0) {
+        setTimeout(() => {
+          this.startVehicleAnimation(vehicleData);
+        }, vehicleData.config.delay);
+      } else {
         this.startVehicleAnimation(vehicleData);
-      }, config.delay);
-    } else {
-      this.startVehicleAnimation(vehicleData);
-    }
+      }
+    });
   }
 
   startVehicleAnimation(vehicleData) {

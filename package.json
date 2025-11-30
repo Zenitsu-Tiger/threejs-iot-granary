@@ -7,7 +7,7 @@
     "dev": "vite --mode development",
     "dev:proxy": "vite --mode development",
     "dev:direct": "vite --mode development --define VITE_USE_PROXY=false",
-    "build": "vite build --mode production",
+    "build": "NODE_ENV=production vite build --mode production",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "preview:prod": "vite preview --mode production"

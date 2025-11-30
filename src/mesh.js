@@ -10,6 +10,7 @@ import { createFlame, stopFlame } from './model/flame.js';
 import TruckAnimation from './model/truckAnimation.js';
 import fvpAnimation from './model/fvp.js';
 import { RESOURCES } from './config/resources.js';
+import { resourceManager } from './utils/resourceManager.js';
 
 const group = new THREE.Group();
 
@@ -58,11 +59,11 @@ loader.load(RESOURCES.models.main, gltf => {
   const roadPos = new THREE.Vector3();
   roadModel.getWorldPosition(roadPos);
 
-  // 创建卡车动画
-  const truckAnimation = new TruckAnimation(group, roadPos, roadModel);
-
-  // 将动画更新函数导出，以便在主渲染循环中调用
-  window.truckAnimation = truckAnimation;
+  // ✅ 延迟创建卡车动画，避免阻塞主线程
+  requestAnimationFrame(() => {
+    const truckAnimation = new TruckAnimation(group, roadPos, roadModel);
+    window.truckAnimation = truckAnimation;
+  });
   // 获取父对象 粮仓，里面有各个类型不一的子对象粮仓
   const farmGroup = gltf.scene.getObjectByName('粮仓');
   farmGroup.traverse(obj => {
@@ -246,6 +247,9 @@ loader.load(RESOURCES.models.main, gltf => {
     messageTag.element.style.visibility = 'visible';
     if (chooseMesh) {
       messageTag.element.style.visibility = 'visible';
+
+      // 强制更新所有变换矩阵
+      model.updateMatrixWorld(true);
 
       // 使用射线交点的世界坐标
       if (chooseMesh.point) {

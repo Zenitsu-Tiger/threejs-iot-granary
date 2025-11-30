@@ -259,6 +259,36 @@
       .info-panel.hidden {
         display: none;
       }
+
+      /* Stats 样式定制 */
+      div[id*='stats'] {
+        position: fixed !important;
+        top: 15px !important;
+        right: 15px !important;
+        left: auto !important;
+        z-index: 1000 !important;
+        opacity: 0.9 !important;
+
+        /* 添加现代化的外观 */
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(0, 255, 255, 0.2) !important;
+      }
+
+      /* Stats的canvas元素样式 */
+      div[id*='stats'] canvas {
+        display: block !important;
+        border-radius: 6px !important;
+      }
+
+      /* 鼠标悬停效果 */
+      div[id*='stats']:hover {
+        opacity: 1 !important;
+        transform: scale(1.02) !important;
+        transition: all 0.2s ease !important;
+      }
     </style>
     <title>物联网智慧粮仓</title>
   </head>
@@ -481,7 +511,7 @@
           const isDev =
             window.location.hostname === '192.168.31.80' ||
             window.location.hostname === 'localhost';
-          const baseUrl = isDev ? '/api/static' : 'http://static.lyoko.cc';
+          const baseUrl = isDev ? '/api/static' : 'https://static.lyoko.cc';
 
           document.getElementById(
             'infoBgImg'
